@@ -1,0 +1,9 @@
+How to kill tomcat service running on any port, Windows?
+
+netstat -aon | find /i “listening”
+Apply port filter
+netstat -aon |find /i “listening” |find “8080”
+Finally with the PID we can run the following command to kill the process
+Copy PID from result set
+taskkill /F /PID
+Ex: taskkill /F /PID 189
