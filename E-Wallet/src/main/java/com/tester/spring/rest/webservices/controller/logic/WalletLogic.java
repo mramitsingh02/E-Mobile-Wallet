@@ -24,7 +24,7 @@ import static java.util.Objects.*;
 @Slf4j
 public class WalletLogic {
 
-    private static final WalletLogic WALLET_LOGIC = new WalletLogic();
+    private volatile static WalletLogic WALLET_LOGIC = new WalletLogic();
 
     public static WalletLogic getInstance() {
         return WALLET_LOGIC;

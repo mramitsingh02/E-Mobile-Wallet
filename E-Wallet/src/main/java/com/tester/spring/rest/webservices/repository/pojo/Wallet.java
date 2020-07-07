@@ -1,5 +1,6 @@
 package com.tester.spring.rest.webservices.repository.pojo;
 
+import com.tester.spring.rest.webservices.dto.BankDetails;
 import com.tester.spring.rest.webservices.dto.WalletDTO;
 import com.tester.spring.rest.webservices.repository.converter.AmountConverter;
 import com.tester.spring.rest.webservices.repository.converter.PinConverter;
@@ -13,7 +14,10 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +32,6 @@ public class Wallet {
     @Id
     @Column(name = "wallet_number", updatable = false, length = 64)
     private String walletNumber;
-    private String bankAccountNumber;
     @Column(name = "msisdn", nullable = false, length = 32)
     private String msisdn;
     @Convert(converter = PinConverter.class)
@@ -48,6 +51,12 @@ public class Wallet {
     private String paymentType;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "wallet", fetch = FetchType.EAGER)
     private List<Status> statuses;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "wallet", fetch = FetchType.EAGER)
+    @Column(name = "link_bank_id")
+    private List<LinkedBanks> linkedBanks;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "USER_WALLET_BALANCE_MAP", joinColumns = {@JoinColumn(name = "WALLET_NUMBER")}, inverseJoinColumns = @JoinColumn(name = "WALLET_NUMBER"))
+    private List<WalletBalances> walletBalances;
 
     public Wallet(WalletDTO walletDTO) {
         setPaymentType(walletDTO.getPaymentType());
@@ -55,7 +64,7 @@ public class Wallet {
         setMsisdn(walletDTO.getMsisdn());
         setPin(new Pin(walletDTO.getPin()));
         setAmountWithDefaultValue(walletDTO);
-        setBankAccountNumber(walletDTO.getBankAccountNumber());
+        populateLinkedBanks(walletDTO.getBankDetails());
         setWalletNumber(walletDTO.getWalletNumber());
         setPinChanged(walletDTO.isPinChanged());
         setWalletSpecId(walletDTO.getWalletSpecId());
@@ -100,25 +109,26 @@ public class Wallet {
         return createUpdateDateTime;
     }
 
+    private void populateLinkedBanks(List<BankDetails> bankDetails) {
+        if (isNull(bankDetails)) return;
+
+        setLinkedBanks(bankDetails.stream().map(LinkedBanks::new).collect(Collectors.toList()));
+
+    }
+
     private void updateTime(WalletDTO walletDTO) {
 
-        if (isNull(createUpdateDateTime)) {
-            setCreateUpdateDateTime(createOf(walletDTO.getCreatedTime()));
-        } else {
-            setCreateUpdateDateTime(updateOf(createUpdateDateTime));
-        }
+        if (isNull(this.createUpdateDateTime)) setCreateUpdateDateTime(createOf(walletDTO.getCreatedTime()));
+        else setCreateUpdateDateTime(updateOf(this.createUpdateDateTime));
     }
 
     public boolean isPinExist() {
-        return Objects.nonNull(pin);
+        return Objects.nonNull(this.pin);
     }
 
     private void setAmountWithDefaultValue(WalletDTO walletDTO) {
-        if (isNull(walletDTO.getAmount())) {
-            setAmount(Amount.of());
-        } else {
-            setAmount(walletDTO.getAmount());
-        }
+        if (isNull(walletDTO.getAmount())) setAmount(Amount.of());
+        else setAmount(walletDTO.getAmount());
         walletDTO.setAmount(getAmount());
     }
 

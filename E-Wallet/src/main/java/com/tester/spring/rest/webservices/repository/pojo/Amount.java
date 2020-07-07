@@ -3,11 +3,13 @@ package com.tester.spring.rest.webservices.repository.pojo;
 import com.tester.spring.rest.webservices.exception.InvalidAmountFound;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
 @Getter
-public class Amount {
+public final class Amount implements Serializable {
+    private static final long serialVersionUID = 2330019623894757611L;
     private final BigDecimal value;
 
     public Amount(double doubleAmount) {

@@ -40,9 +40,6 @@ public class WalletSpecificationController {
         ControllerLinkBuilder linkBuilder = ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).get(specificationDTO.getSpecId()));
         resource.add(linkBuilder.withRel("Self"));
         return resource;
-
-        //return specificationDTO;
-
     }
 
     @PutMapping("/walletSpecification")

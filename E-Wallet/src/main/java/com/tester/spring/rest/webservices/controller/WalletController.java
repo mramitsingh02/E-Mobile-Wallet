@@ -29,74 +29,73 @@ public class WalletController {
     @Autowired
     private WalletServices walletServices;
 
+
     @PostMapping("/")
     public MappingJacksonValue create(@Valid @RequestBody WalletDTO walletDTO) {
-        final WalletDTO wallet = walletServices.save(walletDTO);
-        return wallet.getMappingJacksonValue();
+        final WalletDTO wallet = this.walletServices.save (walletDTO);
+        return wallet.getMappingJacksonValue ();
     }
 
     @GetMapping(path = "/msisdn/{msisdn}")
     public MappingJacksonValue findByMsisdn(@PathVariable String msisdn) {
-        WalletDTO wallet = walletServices.findByMsisdn(msisdn);
-        return wallet.getMappingJacksonValue();
+        WalletDTO wallet = this.walletServices.findByMsisdn (msisdn);
+        return wallet.getMappingJacksonValue ();
     }
 
 
     @GetMapping(path = "/msisdn/{msisdn}/pin/{pin}")
     public MappingJacksonValue findByMsisdnAndPin(@PathVariable String msisdn, @PathVariable String pin) {
-        WalletDTO wallet = walletServices.findByMsisdnAndPin(msisdn, pin);
-        return wallet.getMappingJacksonValue();
+        WalletDTO wallet = this.walletServices.findByMsisdnAndPin (msisdn, pin);
+        return wallet.getMappingJacksonValue ();
     }
 
     @PutMapping(path = "/msisdn/{msisdn}")
     public MappingJacksonValue changePin(@PathVariable String msisdn, @RequestBody ChangePinDTO changePin) {
-        WalletDTO wallet = walletServices.changePin(msisdn, changePin);
-        return wallet.getMappingJacksonValue();
+        WalletDTO wallet = this.walletServices.changePin (msisdn, changePin);
+        return wallet.getMappingJacksonValue ();
     }
 
     @GetMapping(path = "/All")
     public MappingJacksonValue findAll() {
-        List<WalletDTO> wallets = walletServices.findAll();
-        return MappingJacksonUtils.getMappingJacksonValues(wallets);
+        List<WalletDTO> wallets = this.walletServices.findAll ();
+        return MappingJacksonUtils.getMappingJacksonValues (wallets);
     }
 
     @GetMapping("/walletNumber/{walletNumber}/pin/{pin}")
     public MappingJacksonValue getWalletByPin(@PathVariable String walletNumber, @PathVariable String pin) {
-        WalletDTO wallet = walletServices.findByWalletNumber(walletNumber);
-        if (wallet.getPin().equals(pin)) {
-            return wallet.getMappingJacksonValue();
-        }
-        throw new AccountAuthenticationException("Account number and pin not exception.");
+        WalletDTO wallet = this.walletServices.findByWalletNumber (walletNumber);
+        if (wallet.getPin ().equals (pin)) return wallet.getMappingJacksonValue ();
+        throw new AccountAuthenticationException ("Account number and pin not exception.");
     }
 
     @GetMapping("/walletNumber/{walletNumber}")
     public MappingJacksonValue getWallet(@PathVariable String walletNumber) {
-        WalletDTO wallet = walletServices.findByWalletNumber(walletNumber);
-        return wallet.getMappingJacksonValue();
+        WalletDTO wallet = this.walletServices.findByWalletNumber (walletNumber);
+        return wallet.getMappingJacksonValue ();
     }
 
     @DeleteMapping("/walletNumber/{walletNumber}")
     public void deleteByWallet(@PathVariable String walletNumber) {
-        walletServices.deleteByWalletNumber(walletNumber);
+        this.walletServices.deleteByWalletNumber (walletNumber);
     }
 
 
     @DeleteMapping(path = "/msisdn/{msisdn}/pin/{pin}")
     public void deleteByMsisdnAndPin(@PathVariable String msisdn, @PathVariable String pin) {
-        walletServices.deleteByMsisdnAndPin(msisdn, pin);
+        this.walletServices.deleteByMsisdnAndPin (msisdn, pin);
     }
 
 
     @PostMapping("/wallet-v1")
     public Resource<WalletDTO> wallets(@Valid @RequestBody WalletDTO walletDTO) {
-        final WalletDTO wallet = walletServices.save(walletDTO);
-        return getWalletResource(wallet);
+        final WalletDTO wallet = this.walletServices.save (walletDTO);
+        return getWalletResource (wallet);
     }
 
     private Resource<WalletDTO> getWalletResource(WalletDTO wallet) {
-        Resource<WalletDTO> resource = new Resource<>(wallet);
-        Link linkBuilder = ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).findByMsisdn(wallet.getMsisdn())).withSelfRel();
-        resource.add(linkBuilder);
+        Resource<WalletDTO> resource = new Resource<> (wallet);
+        Link linkBuilder = ControllerLinkBuilder.linkTo (ControllerLinkBuilder.methodOn (this.getClass ()).findByMsisdn (wallet.getMsisdn ())).withSelfRel ();
+        resource.add (linkBuilder);
         return resource;
     }
 
